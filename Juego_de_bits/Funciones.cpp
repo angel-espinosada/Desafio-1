@@ -4,7 +4,7 @@
 #include <random>
 using namespace std;
 
-void crearTablero(int &filas, int &columnas, unsigned char* &tablero, int &totalBytes) {
+void crearTablero(int &filas, int &columnas, unsigned char* &tablero, int &totalbytes) {
     cout << "||||Sweet Crush, JUEGO DE BITS||||" << endl;
     cout << "Ingrese numero de filas: ";
     cin >> filas;
@@ -12,13 +12,13 @@ void crearTablero(int &filas, int &columnas, unsigned char* &tablero, int &total
     cin >> columnas;
 
 
-    int totalBits = 3 * filas * columnas;
-    totalBytes = (totalBits + 7) / 8; //Calculo de bits
+    int totalbits = 3 * filas * columnas;
+    totalbytes = (totalbits + 7) / 8; //Calculo de bits
 
-    tablero = new unsigned char[totalBytes];
+    tablero = new unsigned char[totalbytes];
 
     cout << "Tablero creado: " << filas << "x" << columnas
-         << " (" << totalBytes << " bytes reservados)" << endl;
+         << " (" << totalbytes << " bytes reservados)" << endl;
 }
 
 int menu() {
@@ -39,10 +39,11 @@ int menu() {
     return opcion;
 }
 
-void mostrarTablero(int filas, int columnas) {
+void mostrarTablero(unsigned char* tablero,int filas, int columnas,int totalbytes) {
     for (int f = 0; f < filas; f++) {
         for (int c = 0; c < columnas; c++) {
-            cout << "[ * ]"; //ficha temporal...
+            unsigned char valor=leerficha(tablero, f, c, columnas, totalbytes);
+            cout << "[ " << (int)valor << " ]"; //ficha
         }
         cout << endl;
     }
@@ -60,6 +61,19 @@ void generarfichas(int totalfichas) {
     cout<<ficha<<endl;
 }
 
+unsigned char leerficha(unsigned char* tablero, int fila, int columna, int columnas, int totalbytes) {
+    //Calculos realizados en el cuaderno
+    int indice = fila * columnas + columna;
+    int bitinicio = indice * 3;
+    int byte = bitinicio / 8;
+    int bitenbyte = bitinicio % 8;
+    int siguiente = (byte + 1 < totalbytes) ? tablero[byte + 1] : 0;
+    int combinado = tablero[byte] | (siguiente << 8);
+    int desplazado = combinado >> bitenbyte;
+
+    return desplazado & 7;   // Una mascara 111
+}
+
 int ficha_binario(int ficha){
     int binario[100];
     int i=0;
@@ -75,3 +89,4 @@ int ficha_binario(int ficha){
         i++;
 }
 }
+

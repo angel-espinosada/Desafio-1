@@ -4,17 +4,17 @@ using namespace std;
 
 
 int main() {
-    int filas, columnas, totalBytes;
+    int filas, columnas, totalbytes;
     int opcion;
     unsigned char* tablero;
-    crearTablero(filas, columnas, tablero, totalBytes);
+    crearTablero(filas, columnas, tablero, totalbytes);
     do {
         opcion = menu();
 
         switch (opcion) {
         case 1:
             cout << "Mostrar tablero" << endl;
-            mostrarTablero(filas, columnas);
+            mostrarTablero(tablero,filas, columnas,totalbytes);
             generarfichas(filas * columnas);
             break;
         case 2:
