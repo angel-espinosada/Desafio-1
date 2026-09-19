@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include "Funciones.h"
+#include <random>
 using namespace std;
 
 void crearTablero(int &filas, int &columnas, unsigned char* &tablero, int &totalBytes) {
@@ -12,7 +13,7 @@ void crearTablero(int &filas, int &columnas, unsigned char* &tablero, int &total
 
 
     int totalBits = 3 * filas * columnas;
-    totalBytes = (totalBits + 7) / 8;   // redondeo hacia arriba sin usar funciones extra
+    totalBytes = (totalBits + 7) / 8; //Calculo de bits
 
     tablero = new unsigned char[totalBytes];
 
@@ -41,8 +42,18 @@ int menu() {
 void mostrarTablero(int filas, int columnas) {
     for (int f = 0; f < filas; f++) {
         for (int c = 0; c < columnas; c++) {
-            cout << "[ * ]";   // luego aqui ira el simbolo de la ficha real
+            cout << "[ * ]"; //ficha temporal...
         }
         cout << endl;
+    }
+}
+
+
+void generarfichas(int totalfichas) {
+    srand(time(0));
+
+    for (int i = 0; i < totalfichas; i++) {
+        int valor = rand() % 8;
+        cout << "Ficha " << i << ": " << valor << endl;
     }
 }

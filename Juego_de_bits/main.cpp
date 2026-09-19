@@ -15,6 +15,7 @@ int main() {
         case 1:
             cout << "Mostrar tablero" << endl;
             mostrarTablero(filas, columnas);
+            generarfichas(filas * columnas);
             break;
         case 2:
             cout << "Eliminar ficha" << endl;
