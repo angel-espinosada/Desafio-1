@@ -51,9 +51,27 @@ void mostrarTablero(int filas, int columnas) {
 
 void generarfichas(int totalfichas) {
     srand(time(0));
-
+    int ficha[totalfichas];
     for (int i = 0; i < totalfichas; i++) {
         int valor = rand() % 8;
         cout << "Ficha " << i << ": " << valor << endl;
+        ficha[i]=valor;
     }
+    cout<<ficha<<endl;
+}
+
+int ficha_binario(int ficha){
+    int binario[100];
+    int i=0;
+    if (ficha == 0) {
+        cout << 0 << endl;
+        return 0;
+    }
+    while (ficha > 0) {
+        binario[i] = ficha % 2;
+        cout << "Dividimos. Residuo (bit): " << binario[i] << endl;
+
+        ficha = ficha / 2;
+        i++;
+}
 }
