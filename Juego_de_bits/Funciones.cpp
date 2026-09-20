@@ -43,23 +43,14 @@ void mostrarTablero(unsigned char* tablero,int filas, int columnas,int totalbyte
     for (int f = 0; f < filas; f++) {
         for (int c = 0; c < columnas; c++) {
             unsigned char valor=leerficha(tablero, f, c, columnas, totalbytes);
-            cout << "[ " << (int)valor << " ]"; //ficha
+            char letra=ficha_letra(valor);
+            cout << "[ " << letra << " ]"; //ficha
         }
         cout << endl;
     }
 }
 
 
-void generarfichas(int totalfichas) {
-    srand(time(0));
-    int ficha[totalfichas];
-    for (int i = 0; i < totalfichas; i++) {
-        int valor = rand() % 8;
-        cout << "Ficha " << i << ": " << valor << endl;
-        ficha[i]=valor;
-    }
-    cout<<ficha<<endl;
-}
 
 unsigned char leerficha(unsigned char* tablero, int fila, int columna, int columnas, int totalbytes) {
     //Calculos realizados en el cuaderno
@@ -90,3 +81,41 @@ int ficha_binario(int ficha){
 }
 }
 
+void escribirficha(unsigned char* tablero, int fila, int columna, int columnas, int totalbytes, unsigned char valor) {
+    int indice = fila * columnas + columna;
+    int bitinicio = indice * 3;
+    int byte = bitinicio / 8;
+    int bitenbyte = bitinicio % 8;
+
+    bool siguienteExiste = (byte + 1 < totalbytes);
+    int siguiente = siguienteExiste ? tablero[byte + 1] : 0;
+
+    int combinado = tablero[byte] | (siguiente << 8);
+
+    int mascara = 7 << bitenbyte;      // mascara
+    int borrador = ~mascara;           // borra solo esos 3 bits
+
+    int limpio = combinado & borrador;
+    int valorCorrido = (valor & 7) << bitenbyte;
+
+    int nuevo = limpio | valorCorrido;
+
+    tablero[byte] = nuevo & 0xFF;                  // 8 bits acutual
+    if (siguienteExiste) {
+        tablero[byte + 1] = (nuevo >> 8) & 0xFF;   // 8 bits siguiente
+    }
+}
+
+char ficha_letra(unsigned char valor){
+    switch (valor) {
+    case 0: return 'A';
+    case 1: return 'B';
+    case 2: return 'C';
+    case 3: return 'D';
+    case 4: return 'E';
+    case 5: return 'F';
+    case 6: return '.';   // Estado libre
+    case 7: return '*';   //Especial
+    }
+    return '?';
+}

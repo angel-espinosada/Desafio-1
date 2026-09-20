@@ -8,14 +8,22 @@ int main() {
     int opcion;
     unsigned char* tablero;
     crearTablero(filas, columnas, tablero, totalbytes);
+
+    srand(time(0));
+    for (int f = 0; f < filas; f++) {
+        for (int c = 0; c < columnas; c++) {
+            escribirficha(tablero, f, c, columnas, totalbytes, rand() % 6);
+        }
+    }
     do {
         opcion = menu();
 
         switch (opcion) {
         case 1:
             cout << "Mostrar tablero" << endl;
+
+
             mostrarTablero(tablero,filas, columnas,totalbytes);
-            generarfichas(filas * columnas);
             break;
         case 2:
             cout << "Eliminar ficha" << endl;
