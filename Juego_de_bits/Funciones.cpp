@@ -119,3 +119,126 @@ char ficha_letra(unsigned char valor){
     }
     return '?';
 }
+void eliminar_ficha(unsigned char* tablero, int filas, int columnas, int totalbytes) {
+    int fila, columna;
+    cout << "Fila a eliminar (0 a " << filas - 1 << "): ";
+    cin >> fila;
+    cout << "Columna a eliminar (0 a " << columnas - 1 << "): ";
+    cin >> columna;
+
+    if (fila < 0 || fila >= filas || columna < 0 || columna >= columnas) {
+        cout << "Posicion invalida." << endl;
+        return;
+    }
+
+    escribirficha(tablero, fila, columna, columnas, totalbytes, 6);   // 6 = estado libre
+    cout << "Ficha eliminada." << endl;
+}
+
+
+bool* crear_marcas(int filas, int columnas){
+
+    bool* marca = new bool[filas * columnas];
+    for (int i = 0; i < filas * columnas; i++) {
+        marca[i] = false;
+    }
+    return marca;
+}
+
+
+void detectar_horizontales(unsigned char* tablero, int filas, int columnas, int totalbytes, bool* marca){
+
+    for (int f = 0; f < filas; f++) {
+        int c = 0;
+        while (c < columnas) {
+            unsigned char valor = leerficha(tablero, f, c, columnas, totalbytes);
+            if (valor > 5) { c++; continue; }   // salta estado libre/especial
+
+            int inicio = c;
+            while (c + 1 < columnas && leerficha(tablero, f, c + 1, columnas, totalbytes) == valor) {
+                c++;
+            }
+            int largo = c - inicio + 1;
+            if (largo >= 3) {
+                for (int k = inicio; k <= c; k++) {
+                    marca[f * columnas + k] = true;
+                }
+            }
+            c++;
+        }
+    }
+}
+void detectar_verticales(unsigned char* tablero, int filas, int columnas, int totalbytes, bool* marca){
+    for (int c = 0; c < columnas; c++) {
+    int f = 0;
+    while (f < filas) {
+        unsigned char valor = leerficha(tablero, f, c, columnas, totalbytes);
+        if (valor > 5) { f++; continue; }
+
+        int inicio = f;
+        while (f + 1 < filas && leerficha(tablero, f + 1, c, columnas, totalbytes) == valor) {
+            f++;
+        }
+        int largo = f - inicio + 1;
+        if (largo >= 3) {
+            for (int k = inicio; k <= f; k++) {
+                marca[k * columnas + c] = true;
+            }
+        }
+        f++;
+    }
+}
+}
+int eliminar_marcadas(unsigned char* tablero, int filas, int columnas, int totalbytes, bool* marca){
+
+    int contador = 0;
+    for (int f = 0; f < filas; f++) {
+        for (int c = 0; c < columnas; c++) {
+            if (marca[f * columnas + c]) {
+                escribirficha(tablero, f, c, columnas, totalbytes, 6);
+                contador++;
+            }
+        }
+    }
+    return contador;
+}
+
+void caida_fichas(unsigned char* tablero, int filas, int columnas, int totalbytes){
+    for (int c = 0; c < columnas; c++) {
+        int escritura = filas - 1;   // apunta a la fila mas baja aun sin llenar
+
+        for (int f = filas - 1; f >= 0; f--) {
+            unsigned char valor = leerficha(tablero, f, c, columnas, totalbytes);
+            if (valor <= 5) {   // es una ficha valida (no vacio ni especial)
+                escribirficha(tablero, escritura, c, columnas, totalbytes, valor);
+                escritura--;
+            }
+        }
+
+        // lo que quedo arriba de 'escritura' esta vacio: se rellena con fichas nuevas
+        for (int f = escritura; f >= 0; f--) {
+            escribirficha(tablero, f, c, columnas, totalbytes, rand() % 6);
+        }
+    }
+}
+
+int cascadas(unsigned char* tablero, int filas, int columnas, int totalbytes){
+    int cascadas = 0;
+    int eliminadas;
+
+    do {
+        bool* marca = crear_marcas(filas, columnas);
+        detectar_horizontales(tablero, filas, columnas, totalbytes, marca);
+        detectar_verticales(tablero, filas, columnas, totalbytes, marca);
+        eliminadas = eliminar_marcadas(tablero, filas, columnas, totalbytes, marca);
+        delete[] marca;
+
+        if (eliminadas > 0) {
+            caida_fichas(tablero, filas, columnas, totalbytes);
+            cascadas++;
+        }
+
+    } while (eliminadas > 0);
+
+    return cascadas;
+}
