@@ -24,25 +24,22 @@ int main() {
 
 
             mostrarTablero(tablero,filas, columnas,totalbytes);
+            cout << "--- Formato binario ---" << endl;
+            mostrartablerobin(tablero, filas, columnas, totalbytes);
             break;
         case 2:{
             cout << "Eliminar ficha" << endl;
             eliminar_ficha(tablero, filas, columnas, totalbytes);
-            bool* marca = crear_marcas(filas, columnas);
-            detectar_horizontales(tablero, filas, columnas, totalbytes, marca);
-            detectar_verticales(tablero, filas, columnas, totalbytes, marca);
-            int eliminadas = eliminar_marcadas(tablero, filas, columnas, totalbytes, marca);
-            cout << "Eliminacion de fichas: " << eliminadas << endl;
-            delete[] marca;
-            int cascada = cascadas(tablero, filas, columnas, totalbytes);
-            cout << "Cascadas producidas: " << cascada << endl;
+
         }
             break;
         case 3:
             cout << "Agregar fila" << endl;
+            agregar_fila(tablero, filas, columnas, totalbytes);
             break;
         case 4:
             cout << "Eliminar fila" << endl;
+            eliminar_fila(tablero, filas, columnas, totalbytes);
             break;
         case 5:
             cout << "Agregar columna" << endl;
@@ -55,6 +52,7 @@ int main() {
             break;
         case 0:
             cout << "Saliendo..." << endl;
+            delete[] tablero;
             break;
         default:
             cout << "Opcion invalida." << endl;

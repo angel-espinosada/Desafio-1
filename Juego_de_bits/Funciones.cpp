@@ -65,21 +65,6 @@ unsigned char leerficha(unsigned char* tablero, int fila, int columna, int colum
     return desplazado & 7;   // Una mascara 111
 }
 
-int ficha_binario(int ficha){
-    int binario[100];
-    int i=0;
-    if (ficha == 0) {
-        cout << 0 << endl;
-        return 0;
-    }
-    while (ficha > 0) {
-        binario[i] = ficha % 2;
-        cout << "Dividimos. Residuo (bit): " << binario[i] << endl;
-
-        ficha = ficha / 2;
-        i++;
-}
-}
 
 void escribirficha(unsigned char* tablero, int fila, int columna, int columnas, int totalbytes, unsigned char valor) {
     int indice = fila * columnas + columna;
@@ -133,7 +118,14 @@ void eliminar_ficha(unsigned char* tablero, int filas, int columnas, int totalby
 
     escribirficha(tablero, fila, columna, columnas, totalbytes, 6);   // 6 = estado libre
     cout << "Ficha eliminada." << endl;
+    caida_fichas(tablero, filas, columnas, totalbytes);
+    int total_eliminadas;
+    int cascada = cascadas(tablero, filas, columnas, totalbytes, total_eliminadas);
+    cout << "Cascadas producidas: " << cascada << endl;
+    cout << "Fichas eliminadas en total: " << total_eliminadas << endl;
 }
+
+void agregar_fila(unsigned char* &tablero, int &filas, int columnas, int &totalbytes);
 
 
 bool* crear_marcas(int filas, int columnas){
@@ -152,7 +144,7 @@ void detectar_horizontales(unsigned char* tablero, int filas, int columnas, int 
         int c = 0;
         while (c < columnas) {
             unsigned char valor = leerficha(tablero, f, c, columnas, totalbytes);
-            if (valor > 5) { c++; continue; }   // salta estado libre/especial
+            if (valor > 5) { c++; continue; }   // salta estado libre
 
             int inicio = c;
             while (c + 1 < columnas && leerficha(tablero, f, c + 1, columnas, totalbytes) == valor) {
@@ -209,22 +201,23 @@ void caida_fichas(unsigned char* tablero, int filas, int columnas, int totalbyte
 
         for (int f = filas - 1; f >= 0; f--) {
             unsigned char valor = leerficha(tablero, f, c, columnas, totalbytes);
-            if (valor <= 5) {   // es una ficha valida (no vacio ni especial)
+            if (valor <= 5) {   // es una ficha valida
                 escribirficha(tablero, escritura, c, columnas, totalbytes, valor);
                 escritura--;
             }
         }
 
-        // lo que quedo arriba de 'escritura' esta vacio: se rellena con fichas nuevas
+
         for (int f = escritura; f >= 0; f--) {
             escribirficha(tablero, f, c, columnas, totalbytes, rand() % 6);
         }
     }
 }
 
-int cascadas(unsigned char* tablero, int filas, int columnas, int totalbytes){
+int cascadas(unsigned char* tablero, int filas, int columnas, int totalbytes,int &total_eliminada){
     int cascadas = 0;
     int eliminadas;
+    total_eliminada=0;
 
     do {
         bool* marca = crear_marcas(filas, columnas);
@@ -236,9 +229,81 @@ int cascadas(unsigned char* tablero, int filas, int columnas, int totalbytes){
         if (eliminadas > 0) {
             caida_fichas(tablero, filas, columnas, totalbytes);
             cascadas++;
+            total_eliminada+=eliminadas;
         }
 
     } while (eliminadas > 0);
 
     return cascadas;
+}
+void agregar_fila(unsigned char* &tablero, int &filas, int columnas, int &totalbytes){
+    int filasnuevas = filas + 1;
+    int totalbitsnuevo = 3 * filasnuevas * columnas;
+    int totalbytesnuevo = (totalbitsnuevo + 7) / 8;
+
+    unsigned char* tablero_nuevo = new unsigned char[totalbytesnuevo];
+    // Copiando tal cual el tablero
+    for (int i = 0; i < totalbytes; i++) {
+        tablero_nuevo[i] = tablero[i];
+    }
+
+    // Colocando los bits en 0
+    for (int i = totalbytes; i < totalbytesnuevo; i++) {
+        tablero_nuevo[i] = 0;
+    }
+    delete[] tablero;
+    tablero = tablero_nuevo;
+    filas = filasnuevas;
+    totalbytes = totalbytesnuevo;
+
+
+    int f = filas - 1;
+    for (int c = 0; c < columnas; c++) {
+        escribirficha(tablero, f, c, columnas, totalbytes, rand() % 6);
+    }
+    cout << "Fila agregada. Nuevo tamano: " << filas << "x" << columnas << endl;
+}
+
+void eliminar_fila(unsigned char* &tablero, int &filas, int columnas, int &totalbytes){
+
+    if (filas <= 1) {
+        cout << "No se puede eliminar: el tablero necesita al menos 1 fila." << endl;
+        return;
+    }
+
+    int filas_nuevas = filas - 1;
+    int total_bitsnuevo = 3 * filas_nuevas * columnas;
+    int totalbytes_nuevo = (total_bitsnuevo + 7) / 8;
+
+    unsigned char* tablero_nuevo = new unsigned char[totalbytes_nuevo];
+
+    for (int i = 0; i < totalbytes_nuevo; i++) {
+        tablero_nuevo[i] = tablero[i];
+    }
+
+    delete[] tablero;
+    tablero = tablero_nuevo;
+    filas = filas_nuevas;
+    totalbytes = totalbytes_nuevo;
+
+    cout << "Fila eliminada,nuevo tamano: " << filas << "x" << columnas << endl;
+}
+
+void mostrarbit(unsigned char valor){
+    for (int pos = 2; pos >= 0; pos--) {
+        int bit = (valor >> pos) & 1;
+        cout << bit;
+    }
+}
+
+void mostrartablerobin(unsigned char* tablero, int filas, int columnas, int totalbytes){
+    for (int f = 0; f < filas; f++) {
+        for (int c = 0; c < columnas; c++) {
+            unsigned char valor = leerficha(tablero, f, c, columnas, totalbytes);
+            cout << "[ ";
+            mostrarbit(valor);
+            cout << " ]";
+        }
+        cout << endl;
+    }
 }

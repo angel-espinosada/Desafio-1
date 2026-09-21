@@ -14,6 +14,9 @@ void detectar_verticales(unsigned char* tablero, int filas, int columnas, int to
 int eliminar_marcadas(unsigned char* tablero, int filas, int columnas, int totalbytes, bool* marca);
 
 void caida_fichas(unsigned char* tablero, int filas, int columnas, int totalbytes);
-int cascadas(unsigned char* tablero, int filas, int columnas, int totalbytes);
-
+int cascadas(unsigned char* tablero, int filas, int columnas, int totalbytes,int &total_eliminadas);
+void agregar_fila(unsigned char* &tablero, int &filas, int columnas, int &totalbytes);
+void eliminar_fila(unsigned char* &tablero, int &filas, int columnas, int &totalbytes);
+void mostrarbit(unsigned char valor);
+void mostrartablerobin(unsigned char* tablero, int filas, int columnas, int totalbytes);
 #endif // FUNCIONES_H
